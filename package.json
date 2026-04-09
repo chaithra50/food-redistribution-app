@@ -9,7 +9,8 @@
     "start": "node backend/server.js",
     "dev": "concurrently \"npm run dev --prefix backend\" \"npm start --prefix frontend\"",
     "heroku-prebuild": "npm install --prefix backend && npm install --prefix frontend",
-    "heroku-postbuild": "npm run build --prefix frontend"
+    "heroku-postbuild": "npm run build --prefix frontend",
+    "setup": "npm install --prefix backend && npm install --prefix frontend && npm run build --prefix frontend"
   },
   "devDependencies": {
     "concurrently": "^7.0.0"
