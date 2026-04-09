@@ -1,0 +1,20 @@
+{
+  "name": "foodlink",
+  "version": "1.0.0",
+  "description": "Food Redistribution System - Full Stack Application",
+  "main": "backend/server.js",
+  "scripts": {
+    "install-all": "npm install --prefix backend && npm install --prefix frontend",
+    "build": "npm run build --prefix frontend",
+    "start": "node backend/server.js",
+    "dev": "concurrently \"npm run dev --prefix backend\" \"npm start --prefix frontend\"",
+    "heroku-prebuild": "npm install --prefix backend && npm install --prefix frontend",
+    "heroku-postbuild": "npm run build --prefix frontend"
+  },
+  "devDependencies": {
+    "concurrently": "^7.0.0"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}
