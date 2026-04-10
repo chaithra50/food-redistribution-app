@@ -215,14 +215,13 @@ exports.getLeaderboard = async (req, res) => {
           as: 'donorInfo',
         },
       },
-      { $unwind: '$donorInfo' },
+      { $unwind: { path: '$donorInfo', preserveNullAndEmptyArrays: true } },
       {
         $project: {
-          rank: 0,
-          name: '$donorInfo.name',
-          organizationName: '$donorInfo.organizationName',
-          email: '$donorInfo.email',
-          phone: '$donorInfo.phone',
+          name: { $ifNull: ['$donorInfo.name', 'Unknown'] },
+          organizationName: { $ifNull: ['$donorInfo.organizationName', 'N/A'] },
+          email: { $ifNull: ['$donorInfo.email', 'N/A'] },
+          phone: { $ifNull: ['$donorInfo.phone', 'N/A'] },
           totalDonations: 1,
           _id: 0,
           userId: '$_id',
@@ -230,10 +229,10 @@ exports.getLeaderboard = async (req, res) => {
       },
     ]);
 
-    // Get top 10 volunteers
+    // Get top 10 volunteers (from deliveries)
     const topVolunteers = await Delivery.aggregate([
       { $match: { status: 'Delivered' } },
-      { $group: { _id: '$assignedVolunteer', deliveriesCompleted: { $sum: 1 } } },
+      { $group: { _id: '$volunteer', deliveriesCompleted: { $sum: 1 } } },
       { $sort: { deliveriesCompleted: -1 } },
       { $limit: 10 },
       {
@@ -244,12 +243,12 @@ exports.getLeaderboard = async (req, res) => {
           as: 'volunteerInfo',
         },
       },
-      { $unwind: '$volunteerInfo' },
+      { $unwind: { path: '$volunteerInfo', preserveNullAndEmptyArrays: true } },
       {
         $project: {
-          name: '$volunteerInfo.name',
-          email: '$volunteerInfo.email',
-          phone: '$volunteerInfo.phone',
+          name: { $ifNull: ['$volunteerInfo.name', 'Unknown'] },
+          email: { $ifNull: ['$volunteerInfo.email', 'N/A'] },
+          phone: { $ifNull: ['$volunteerInfo.phone', 'N/A'] },
           deliveriesCompleted: 1,
           _id: 0,
           userId: '$_id',
@@ -262,6 +261,7 @@ exports.getLeaderboard = async (req, res) => {
       topVolunteers: topVolunteers.map((volunteer, index) => ({ rank: index + 1, ...volunteer })),
     });
   } catch (error) {
+    console.error('Leaderboard error:', error);
     res.status(500).json({ message: error.message });
   }
 };
