@@ -202,66 +202,58 @@ exports.deleteDonation = async (req, res) => {
 
 exports.getLeaderboard = async (req, res) => {
   try {
-    // Get top 10 donors
-    const topDonors = await Food.aggregate([
+    // Simple approach - get top donors
+    const donorStats = await Food.aggregate([
       { $group: { _id: '$donor', totalDonations: { $sum: 1 } } },
       { $sort: { totalDonations: -1 } },
       { $limit: 10 },
-      {
-        $lookup: {
-          from: 'users',
-          localField: '_id',
-          foreignField: '_id',
-          as: 'donorInfo',
-        },
-      },
-      { $unwind: { path: '$donorInfo', preserveNullAndEmptyArrays: true } },
-      {
-        $project: {
-          name: { $ifNull: ['$donorInfo.name', 'Unknown'] },
-          organizationName: { $ifNull: ['$donorInfo.organizationName', 'N/A'] },
-          email: { $ifNull: ['$donorInfo.email', 'N/A'] },
-          phone: { $ifNull: ['$donorInfo.phone', 'N/A'] },
-          totalDonations: 1,
-          _id: 0,
-          userId: '$_id',
-        },
-      },
     ]);
 
-    // Get top 10 volunteers (from deliveries)
-    const topVolunteers = await Delivery.aggregate([
+    // Fetch user details for top donors
+    const topDonors = [];
+    for (const stat of donorStats) {
+      const user = await User.findById(stat._id).select('name email phone organizationName');
+      if (user) {
+        topDonors.push({
+          rank: topDonors.length + 1,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          organizationName: user.organizationName || 'Individual',
+          totalDonations: stat.totalDonations,
+        });
+      }
+    }
+
+    // Get top volunteers
+    const volunteerStats = await Delivery.aggregate([
       { $match: { status: 'Delivered' } },
       { $group: { _id: '$volunteer', deliveriesCompleted: { $sum: 1 } } },
       { $sort: { deliveriesCompleted: -1 } },
       { $limit: 10 },
-      {
-        $lookup: {
-          from: 'users',
-          localField: '_id',
-          foreignField: '_id',
-          as: 'volunteerInfo',
-        },
-      },
-      { $unwind: { path: '$volunteerInfo', preserveNullAndEmptyArrays: true } },
-      {
-        $project: {
-          name: { $ifNull: ['$volunteerInfo.name', 'Unknown'] },
-          email: { $ifNull: ['$volunteerInfo.email', 'N/A'] },
-          phone: { $ifNull: ['$volunteerInfo.phone', 'N/A'] },
-          deliveriesCompleted: 1,
-          _id: 0,
-          userId: '$_id',
-        },
-      },
     ]);
 
+    // Fetch user details for top volunteers
+    const topVolunteers = [];
+    for (const stat of volunteerStats) {
+      const user = await User.findById(stat._id).select('name email phone');
+      if (user) {
+        topVolunteers.push({
+          rank: topVolunteers.length + 1,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          deliveriesCompleted: stat.deliveriesCompleted,
+        });
+      }
+    }
+
     res.json({
-      topDonors: topDonors.map((donor, index) => ({ rank: index + 1, ...donor })),
-      topVolunteers: topVolunteers.map((volunteer, index) => ({ rank: index + 1, ...volunteer })),
+      topDonors,
+      topVolunteers,
     });
   } catch (error) {
     console.error('Leaderboard error:', error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Failed to load leaderboard', error: error.message });
   }
 };
