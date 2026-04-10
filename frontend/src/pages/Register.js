@@ -5,6 +5,38 @@ import { FaLeaf } from 'react-icons/fa';
 import { authAPI } from '../utils/api';
 import { setAuthData } from '../utils/auth';
 
+// Indian States List
+const INDIAN_STATES = [
+  'Andhra Pradesh',
+  'Arunachal Pradesh',
+  'Assam',
+  'Bihar',
+  'Chhattisgarh',
+  'Goa',
+  'Gujarat',
+  'Haryana',
+  'Himachal Pradesh',
+  'Jharkhand',
+  'Karnataka',
+  'Kerala',
+  'Madhya Pradesh',
+  'Maharashtra',
+  'Manipur',
+  'Meghalaya',
+  'Mizoram',
+  'Nagaland',
+  'Odisha',
+  'Punjab',
+  'Rajasthan',
+  'Sikkim',
+  'Tamil Nadu',
+  'Telangana',
+  'Tripura',
+  'Uttar Pradesh',
+  'Uttarakhand',
+  'West Bengal',
+];
+
 const Register = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
@@ -48,6 +80,16 @@ const Register = () => {
   const validateStep2 = () => {
     if (!formData.phone || !formData.address || !formData.city || !formData.state || !formData.pincode) {
       setError('All fields are required');
+      return false;
+    }
+    // Validate pincode format (6 digits)
+    if (!/^[0-9]{6}$/.test(formData.pincode)) {
+      setError('Pincode must be 6 digits');
+      return false;
+    }
+    // Validate phone format (10 digits)
+    if (!/^[0-9]{10}$/.test(formData.phone)) {
+      setError('Phone must be 10 digits');
       return false;
     }
     if (formData.role !== 'donor' && !formData.organizationName) {
@@ -227,14 +269,19 @@ const Register = () => {
 
                     <Form.Group className="mb-3">
                       <Form.Label>State</Form.Label>
-                      <Form.Control
-                        type="text"
+                      <Form.Select
                         name="state"
                         value={formData.state}
                         onChange={handleChange}
                         required
-                        placeholder="State"
-                      />
+                      >
+                        <option value="">Select a state</option>
+                        {INDIAN_STATES.map(state => (
+                          <option key={state} value={state}>
+                            {state}
+                          </option>
+                        ))}
+                      </Form.Select>
                     </Form.Group>
 
                     <Form.Group className="mb-3">
@@ -245,8 +292,13 @@ const Register = () => {
                         value={formData.pincode}
                         onChange={handleChange}
                         required
-                        placeholder="Pincode"
+                        placeholder="Pincode (6 digits)"
+                        pattern="^[0-9]{6}$"
+                        title="Pincode must be 6 digits"
                       />
+                      <Form.Text className="text-muted">
+                        Enter a valid 6-digit pincode
+                      </Form.Text>
                     </Form.Group>
                   </>
                 )}
