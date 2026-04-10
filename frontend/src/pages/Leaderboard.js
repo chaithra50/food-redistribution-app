@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Alert } from 'react-bootstrap';
 import { FaMedal, FaUsers } from 'react-icons/fa';
 import { foodAPI } from '../utils/api';
-import Footer from '../components/Footer';
 
 const Leaderboard = () => {
   const [topDonors, setTopDonors] = useState([]);
@@ -119,7 +118,6 @@ const Leaderboard = () => {
           </Col>
         </Row>
       </Container>
-      <Footer />
     </>
   );
 };
