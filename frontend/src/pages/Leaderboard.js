@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Table, Alert, Spinner } from 'react-bootstrap';
 import { FaMedal, FaUsers } from 'react-icons/fa';
-import { authAPI } from '../utils/api';
-import Navigation from '../components/Navigation';
+import { foodAPI } from '../utils/api';
 import Footer from '../components/Footer';
 
 const Leaderboard = () => {
@@ -18,7 +17,7 @@ const Leaderboard = () => {
   const fetchLeaderboard = async () => {
     try {
       setLoading(true);
-      const response = await authAPI.get('/api/food/leaderboard/stats');
+      const response = await foodAPI.getLeaderboard();
       setTopDonors(response.data.topDonors || []);
       setTopVolunteers(response.data.topVolunteers || []);
       setError('');
@@ -39,7 +38,6 @@ const Leaderboard = () => {
 
   return (
     <>
-      <Navigation />
       <Container className="py-5">
         <Row className="mb-5">
           <Col md={12} className="text-center">

@@ -33,6 +33,7 @@ export const foodAPI = {
   claimFood: (id) => api.post(`/food/claim/${id}`),
   updateFoodStatus: (id, data) => api.put(`/food/status/${id}`, data),
   deleteDonation: (id) => api.delete(`/food/${id}`),
+  getLeaderboard: () => api.get('/food/leaderboard/stats'),
 };
 
 export const deliveryAPI = {

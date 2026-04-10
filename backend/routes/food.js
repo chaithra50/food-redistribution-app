@@ -30,10 +30,10 @@ router.get('/donor-donations', auth, roleCheck('donor'), getDonorDonations);
 router.put('/status/:id', auth, roleCheck('donor'), updateFoodStatus);
 router.delete('/:id', auth, deleteDonation);
 
-// Public routes
+// Public routes - ORDER MATTERS! Put specific routes before :id param
+router.get('/leaderboard/stats', getLeaderboard);
 router.get('/', getDonations);
 router.get('/:id', getDonationById);
-router.get('/leaderboard/stats', getLeaderboard);
 
 // Receiver routes
 router.post('/claim/:id', auth, roleCheck('receiver'), claimFood);
