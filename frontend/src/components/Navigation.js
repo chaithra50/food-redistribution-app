@@ -27,6 +27,9 @@ const Navigation = () => {
             <Nav.Link as={Link} to="/" className="text-white">
               Home
             </Nav.Link>
+            <Nav.Link as={Link} to="/leaderboard" className="text-white">
+              Leaderboard
+            </Nav.Link>
             
             {authenticated && role === 'donor' && (
               <>

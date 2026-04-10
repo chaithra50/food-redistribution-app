@@ -9,6 +9,7 @@ const {
   claimFood,
   updateFoodStatus,
   deleteDonation,
+  getLeaderboard,
 } = require('../controllers/foodController');
 
 const router = express.Router();
@@ -32,6 +33,7 @@ router.delete('/:id', auth, deleteDonation);
 // Public routes
 router.get('/', getDonations);
 router.get('/:id', getDonationById);
+router.get('/leaderboard/stats', getLeaderboard);
 
 // Receiver routes
 router.post('/claim/:id', auth, roleCheck('receiver'), claimFood);

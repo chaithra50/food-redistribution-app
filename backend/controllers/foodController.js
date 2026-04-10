@@ -199,3 +199,69 @@ exports.deleteDonation = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+exports.getLeaderboard = async (req, res) => {
+  try {
+    // Get top 10 donors
+    const topDonors = await Food.aggregate([
+      { $group: { _id: '$donor', totalDonations: { $sum: 1 } } },
+      { $sort: { totalDonations: -1 } },
+      { $limit: 10 },
+      {
+        $lookup: {
+          from: 'users',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'donorInfo',
+        },
+      },
+      { $unwind: '$donorInfo' },
+      {
+        $project: {
+          rank: 0,
+          name: '$donorInfo.name',
+          organizationName: '$donorInfo.organizationName',
+          email: '$donorInfo.email',
+          phone: '$donorInfo.phone',
+          totalDonations: 1,
+          _id: 0,
+          userId: '$_id',
+        },
+      },
+    ]);
+
+    // Get top 10 volunteers
+    const topVolunteers = await Delivery.aggregate([
+      { $match: { status: 'Delivered' } },
+      { $group: { _id: '$assignedVolunteer', deliveriesCompleted: { $sum: 1 } } },
+      { $sort: { deliveriesCompleted: -1 } },
+      { $limit: 10 },
+      {
+        $lookup: {
+          from: 'users',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'volunteerInfo',
+        },
+      },
+      { $unwind: '$volunteerInfo' },
+      {
+        $project: {
+          name: '$volunteerInfo.name',
+          email: '$volunteerInfo.email',
+          phone: '$volunteerInfo.phone',
+          deliveriesCompleted: 1,
+          _id: 0,
+          userId: '$_id',
+        },
+      },
+    ]);
+
+    res.json({
+      topDonors: topDonors.map((donor, index) => ({ rank: index + 1, ...donor })),
+      topVolunteers: topVolunteers.map((volunteer, index) => ({ rank: index + 1, ...volunteer })),
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

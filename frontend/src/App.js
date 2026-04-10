@@ -18,6 +18,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import FoodDetail from './pages/FoodDetail';
 import AboutUs from './pages/AboutUs';
 import Contact from './pages/Contact';
+import Leaderboard from './pages/Leaderboard';
 
 const App = () => {
   return (
@@ -33,6 +34,7 @@ const App = () => {
             <Route path="/food/:id" element={<FoodDetail />} />
             <Route path="/about-us" element={<AboutUs />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
 
             {/* Donor Routes */}
             <Route
